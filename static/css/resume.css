@@ -1,0 +1,236 @@
+:root {
+  --primary-color: #0f172a;    /* Very dark slate for headings */
+  --accent-color: #4f46e5;     /* Indigo for subtle accents */
+  --text-main: #334155;        /* Slate 700 for body */
+  --text-light: #64748b;       /* Slate 500 for secondary text */
+  --divider: #e2e8f0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #cbd5e1; /* Gray background for presentation */
+  color: var(--text-main);
+  line-height: 1.5;
+  padding: 40px 20px;
+}
+
+/* Background presentation ONLY on screen */
+.presentation-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at top, #94a3b8 0%, #cbd5e1 100%);
+  z-index: -1;
+}
+
+/* Floating Action Bar */
+.action-bar {
+  max-width: 850px; /* matched to A4 paper width */
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-download, .btn-back {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-back {
+  background-color: #fff;
+  color: #333;
+}
+
+.btn-download:hover { background-color: #4338ca; transform: translateY(-2px); }
+.btn-back:hover { background-color: #f1f5f9; transform: translateY(-2px); }
+
+/* Document Canvas (A4 Paper emulation) */
+.a4-document {
+  max-width: 850px;
+  min-height: 1100px; /* roughly US Letter/A4 proportion */
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 50px 60px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+/* Header Sections */
+.resume-header {
+  text-align: center;
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.resume-header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 36px;
+  color: var(--primary-color);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+.contact-info, .contact-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px 25px;
+  font-size: 13px;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.contact-info span, .contact-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-links a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+/* Sections */
+.resume-section {
+  margin-bottom: 25px;
+}
+
+.resume-section h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  color: var(--accent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--divider);
+}
+
+/* Entries */
+.entry {
+  margin-bottom: 20px;
+}
+
+.entry:last-child {
+  margin-bottom: 0;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.entry-header h3 {
+  font-size: 16px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.accent-text {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.separator {
+  color: var(--divider);
+  margin: 0 4px;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.location {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.description, .summary-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  text-align: justify;
+}
+
+.tools {
+  font-size: 13px;
+  margin-top: 6px;
+  color: var(--text-main);
+}
+
+.project-link {
+  font-size: 13px;
+  margin-top: 4px;
+}
+.project-link a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+/* Skills Tags */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background-color: #f1f5f9;
+  color: var(--primary-color);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--divider);
+}
+
+/* Print Settings */
+@media print {
+  body {
+    background: transparent;
+    padding: 0;
+  }
+  .presentation-bg, .hidden-print {
+    display: none !important;
+  }
+  .a4-document {
+    box-shadow: none;
+    padding: 0;
+    max-width: 100%;
+    border-radius: 0;
+  }
+  .a4-document.exporting {
+    padding: 60px; /* Optional adjustment for html2pdf scale */
+  }
+}
