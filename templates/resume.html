@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ resume.name }} – Resume</title>
+
+  <!-- Modern Fonts for Print & Web -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/resume.css') }}">
+</head>
+<body>
+  
+  <!-- Presentation Wrapper -->
+  <div class="presentation-bg"></div>
+
+  <!-- Action Bar (Floating) -->
+  <div class="action-bar hidden-print">
+    <a href="{{ url_for('dashboard') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+    <button onclick="downloadPDF()" class="btn-download"><i class="fas fa-file-pdf"></i> Download PDF</button>
+  </div>
+
+  <div class="resume-container a4-document" id="resume-document">
+    <!-- Header: Name & Contact -->
+    <header class="resume-header">
+      <h1>{{ resume.name }}</h1>
+      <div class="contact-info">
+        {% if resume.location %}<span><i class="fas fa-map-marker-alt"></i> {{ resume.location }}</span>{% endif %}
+        {% if resume.email %}<span><i class="fas fa-envelope"></i> {{ resume.email }}</span>{% endif %}
+        {% if resume.phone %}<span><i class="fas fa-phone"></i> {{ resume.phone }}</span>{% endif %}
+      </div>
+      <div class="contact-links">
+        {% if resume.website %}<a href="{{ resume.website }}"><i class="fas fa-globe"></i> {{ resume.website }}</a>{% endif %}
+        {% if resume.github %}<a href="https://github.com/{{ resume.github }}"><i class="fab fa-github"></i> github.com/{{ resume.github }}</a>{% endif %}
+        {% if resume.linkedin %}<a href="https://linkedin.com/in/{{ resume.linkedin }}"><i class="fab fa-linkedin"></i> {{ resume.linkedin }}</a>{% endif %}
+      </div>
+    </header>
+
+    <div class="resume-content">
+      <!-- Summary -->
+      {% if resume.summary %}
+      <section class="resume-section">
+        <h2>Professional Summary</h2>
+        <div class="section-content">
+          <p class="summary-text">{{ resume.summary }}</p>
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Education -->
+      {% if resume.education %}
+      <section class="resume-section">
+        <h2>Education</h2>
+        <div class="section-content">
+          {% for edu in resume.education %}
+            <div class="entry">
+              <div class="entry-header">
+                <h3>{{ edu.degree }}{% if edu.school %}, <span class="accent-text">{{ edu.school }}</span>{% endif %}</h3>
+                <span class="date">{{ edu.start }} – {{ edu.end }}</span>
+              </div>
+              <p class="location">{{ edu.location }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Experience -->
+      {% if resume.experience %}
+      <section class="resume-section">
+        <h2>Experience</h2>
+        <div class="section-content">
+          {% for exp in resume.experience %}
+            <div class="entry">
+              <div class="entry-header">
+                <h3>{{ exp.title }} <span class="separator">|</span> <span class="accent-text">{{ exp.company }}</span></h3>
+                <span class="date">{{ exp.start }} – {{ exp.end }}</span>
+              </div>
+              <p class="location">{{ exp.location }}</p>
+              <p class="description">{{ exp.description }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Projects -->
+      {% if resume.projects %}
+      <section class="resume-section">
+        <h2>Projects</h2>
+        <div class="section-content">
+          {% for project in resume.projects %}
+            <div class="entry">
+              <div class="entry-header">
+                <h3>{{ project.title }}</h3>
+              </div>
+              <p class="description">{{ project.description }}</p>
+              {% if project.tools %}<p class="tools"><strong>Technologies:</strong> {{ project.tools }}</p>{% endif %}
+              {% if project.link %}
+                <p class="project-link"><a href="{{ project.link }}"><i class="fas fa-link"></i> {{ project.link }}</a></p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Skills -->
+      {% if resume.skills %}
+      <section class="resume-section">
+        <h2>Skills</h2>
+        <div class="section-content">
+          <div class="skills-list">
+            {% for skill in resume.skills %}
+              <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById('resume-document');
+      const opt = {
+        margin:       [0.4, 0],
+        filename:     '{{ resume.name|replace(" ", "_") }}_resume.pdf',
+        image:        { type: 'jpeg', quality: 1.0 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // Temporarily add a class that might help printing (if needed)
+      element.classList.add('exporting');
+      
+      html2pdf().set(opt).from(element).save().then(() => {
+        element.classList.remove('exporting');
+      });
+    }
+  </script>
+</body>
+</html>

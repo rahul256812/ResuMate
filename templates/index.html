@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumate - AI Resume Builder</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <header class="glass-header">
+    <div class="header-container">
+      <h1 class="site-title">RESUMATE.</h1>
+      <nav class="nav-links">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('dashboard') }}" class="btn-secondary">Build Resume</a>
+        {% if session.get('user') %}
+          <span class="user-greeting">Welcome, {{ session['user']['username'] }}</span>
+          <a href="{{ url_for('logout') }}" class="btn-text">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth') }}?form=signin" class="btn-text">Login</a>
+          <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">Sign Up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero glass-card">
+      <h2>Craft the Perfect Resume.</h2>
+      <p>Transform your career journey into a beautifully designed, professional document in minutes.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth') }}?form=signin" class="btn-primary pulse">Get Started Now</a>
+      </div>
+    </section>
+
+    <div class="features-grid">
+      <section class="feature-card glass-card">
+        <h3>Lightning Fast ⚡</h3>
+        <p>Our intuitive builder saves you hours. Just fill in your details and let our system handle the formatting.</p>
+      </section>
+
+      <section class="feature-card glass-card">
+        <h3>Pixel Perfect 🎨</h3>
+        <p>Export your resume instantly to high-quality PDF. It's ready to attach and will stand out to recruiters.</p>
+      </section>
+
+      <section class="feature-card glass-card">
+        <h3>Multi-Role Ready 💼</h3>
+        <p>Tailor your resumes for multiple job roles easily. Manage your profiles and generate infinite iterations.</p>
+      </section>
+    </div>
+
+    <section class="cta-section glass-card">
+      <h3>Ready to elevate your career?</h3>
+      <p>Join thousands of professionals landing their dream jobs.</p>
+      <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">Create Your Free Account</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Resumate Builder. Elevate Your Path.</p>
+  </footer>
+</body>
+</html>

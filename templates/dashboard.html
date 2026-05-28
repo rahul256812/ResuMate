@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumate - Build Your Resume</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+  
+  <!-- Animated Background -->
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <header class="glass-header">
+    <div class="header-container">
+      <h1 class="site-title">RESUMATE.</h1>
+      <div class="user-controls">
+        <span>{{ session['user']['username'] }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-text">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="form-wrapper glass-card">
+      <form action="{{ url_for('save_resume') }}" method="POST">
+        
+        <!-- Personal Info -->
+        <section class="form-section">
+          <h2>Personal Information</h2>
+          <div class="input-grid">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="text" name="phone" placeholder="Phone" required>
+            <input type="text" name="location" placeholder="Location">
+            <input type="url" name="website" placeholder="Website / Portfolio">
+            <input type="text" name="github" placeholder="GitHub Username">
+            <input type="text" name="linkedin" placeholder="LinkedIn Username">
+          </div>
+        </section>
+
+        <!-- Summary -->
+        <section class="form-section">
+          <h2>Professional Summary</h2>
+          <textarea name="summary" placeholder="A brief professional summary..." rows="4"></textarea>
+        </section>
+
+        <!-- Education -->
+        <section class="form-section">
+          <h2>Education</h2>
+          <div class="multi-entry" id="education-section">
+            <div class="dynamic-entry">
+              <input type="text" name="education[0][degree]" placeholder="Degree" required>
+              <input type="text" name="education[0][school]" placeholder="School / University" required>
+              <div class="input-grid-2">
+                <input type="text" name="education[0][location]" placeholder="Location">
+                <div class="input-grid-2">
+                  <input type="text" name="education[0][start]" placeholder="Start Date">
+                  <input type="text" name="education[0][end]" placeholder="End Date">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" onclick="addEducation()">+ Add Education</button>
+        </section>
+
+        <!-- Experience -->
+        <section class="form-section">
+          <h2>Experience</h2>
+          <div class="multi-entry" id="experience-section">
+            <div class="dynamic-entry">
+              <input type="text" name="experience[0][title]" placeholder="Job Title" required>
+              <input type="text" name="experience[0][company]" placeholder="Company" required>
+              <div class="input-grid-2">
+                <input type="text" name="experience[0][location]" placeholder="Location">
+                <div class="input-grid-2">
+                  <input type="text" name="experience[0][start]" placeholder="Start Date">
+                  <input type="text" name="experience[0][end]" placeholder="End Date">
+                </div>
+              </div>
+              <textarea name="experience[0][description]" placeholder="Describe your work..." rows="3"></textarea>
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" onclick="addExperience()">+ Add Experience</button>
+        </section>
+
+        <!-- Projects -->
+        <section class="form-section">
+          <h2>Projects</h2>
+          <div class="multi-entry" id="project-section">
+            <div class="dynamic-entry">
+              <input type="text" name="projects[0][title]" placeholder="Project Title" required>
+              <textarea name="projects[0][description]" placeholder="Project Description" rows="3"></textarea>
+              <input type="text" name="projects[0][tools]" placeholder="Technologies Used">
+              <input type="url" name="projects[0][link]" placeholder="GitHub / Live Link">
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" onclick="addProject()">+ Add Project</button>
+        </section>
+
+        <!-- Skills -->
+        <section class="form-section">
+          <h2>Skills</h2>
+          <textarea name="skills" placeholder="Comma-separated list (e.g., Python, HTML, CSS)" rows="2"></textarea>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary pulse">Save & Generate Resume</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Add dynamic sections with entrance animation class
+    let eduCount = 1;
+    let expCount = 1;
+    let projCount = 1;
+
+    function addEducation() {
+      const section = document.getElementById('education-section');
+      const div = document.createElement('div');
+      div.className = 'dynamic-entry animate-in';
+      div.innerHTML = `
+        <input type="text" name="education[${eduCount}][degree]" placeholder="Degree">
+        <input type="text" name="education[${eduCount}][school]" placeholder="School / University">
+        <div class="input-grid-2">
+          <input type="text" name="education[${eduCount}][location]" placeholder="Location">
+          <div class="input-grid-2">
+            <input type="text" name="education[${eduCount}][start]" placeholder="Start Date">
+            <input type="text" name="education[${eduCount}][end]" placeholder="End Date">
+          </div>
+        </div>
+      `;
+      section.appendChild(div);
+      eduCount++;
+    }
+
+    function addExperience() {
+      const section = document.getElementById('experience-section');
+      const div = document.createElement('div');
+      div.className = 'dynamic-entry animate-in';
+      div.innerHTML = `
+        <input type="text" name="experience[${expCount}][title]" placeholder="Job Title">
+        <input type="text" name="experience[${expCount}][company]" placeholder="Company">
+        <div class="input-grid-2">
+          <input type="text" name="experience[${expCount}][location]" placeholder="Location">
+          <div class="input-grid-2">
+            <input type="text" name="experience[${expCount}][start]" placeholder="Start Date">
+            <input type="text" name="experience[${expCount}][end]" placeholder="End Date">
+          </div>
+        </div>
+        <textarea name="experience[${expCount}][description]" placeholder="Describe your work..." rows="3"></textarea>
+      `;
+      section.appendChild(div);
+      expCount++;
+    }
+
+    function addProject() {
+      const section = document.getElementById('project-section');
+      const div = document.createElement('div');
+      div.className = 'dynamic-entry animate-in';
+      div.innerHTML = `
+        <input type="text" name="projects[${projCount}][title]" placeholder="Project Title">
+        <textarea name="projects[${projCount}][description]" placeholder="Project Description" rows="3"></textarea>
+        <input type="text" name="projects[${projCount}][tools]" placeholder="Technologies Used">
+        <input type="url" name="projects[${projCount}][link]" placeholder="GitHub / Live Link">
+      `;
+      section.appendChild(div);
+      projCount++;
+    }
+  </script>
+</body>
+</html>
