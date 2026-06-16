@@ -22,13 +22,24 @@
 
   <header class="glass-header">
     <div class="header-container">
-      <h1 class="site-title">RESUMATE.</h1>
+      <a href="{{ url_for('home') }}" class="site-title">RESUMATE.</a>
       <nav class="nav-links">
         <a href="{{ url_for('home') }}">Home</a>
         <a href="{{ url_for('dashboard') }}" class="btn-secondary">Build Resume</a>
         {% if session.get('user') %}
-          <span class="user-greeting">Welcome, {{ session['user']['username'] }}</span>
-          <a href="{{ url_for('logout') }}" class="btn-text">Logout</a>
+          {% if session['user']['email'] == 'admin@resumate.com' %}
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-admin-hdr">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/></svg>
+              Admin Panel
+            </a>
+          {% endif %}
+          <a href="{{ url_for('profile') }}" class="user-profile-link" style="display:flex;align-items:center;text-decoration:none;" title="{{ session['user']['username'] }}">
+            <div class="user-avatar" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary-color),#a855f7);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;">{{ session['user']['username'][0].upper() }}</div>
+          </a>
+          <a href="{{ url_for('logout') }}" class="btn-logout-hdr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </a>
         {% else %}
           <a href="{{ url_for('auth') }}?form=signin" class="btn-text">Login</a>
           <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">Sign Up</a>
@@ -39,34 +50,42 @@
 
   <main>
     <section class="hero glass-card">
-      <h2>Craft the Perfect Resume.</h2>
-      <p>Transform your career journey into a beautifully designed, professional document in minutes.</p>
+      <h2>Build ATS-Optimized Resumes.</h2>
+      <p>ResuMate combines advanced Gemini AI writer engines, real-time ATS keyword scoring, and high-fidelity layouts to build professional resumes in minutes.</p>
       <div class="hero-actions">
-        <a href="{{ url_for('auth') }}?form=signin" class="btn-primary pulse">Get Started Now</a>
+        {% if session.get('user') %}
+          <a href="{{ url_for('dashboard') }}" class="btn-primary pulse">Go to Dashboard</a>
+        {% else %}
+          <a href="{{ url_for('auth') }}?form=signin" class="btn-primary pulse">Get Started Now</a>
+        {% endif %}
       </div>
     </section>
 
     <div class="features-grid">
       <section class="feature-card glass-card">
-        <h3>Lightning Fast ⚡</h3>
-        <p>Our intuitive builder saves you hours. Just fill in your details and let our system handle the formatting.</p>
+        <h3>AI Summary Writer ✨</h3>
+        <p>ResuMate uses advanced Gemini AI to write custom professional summaries tailored to your skills and experience instantly.</p>
       </section>
 
       <section class="feature-card glass-card">
-        <h3>Pixel Perfect 🎨</h3>
-        <p>Export your resume instantly to high-quality PDF. It's ready to attach and will stand out to recruiters.</p>
+        <h3>Real-time ATS Scoring 📈</h3>
+        <p>Analyze your resume keywords in real-time. Identify missing skills and optimize your visibility score before submitting.</p>
       </section>
 
       <section class="feature-card glass-card">
-        <h3>Multi-Role Ready 💼</h3>
-        <p>Tailor your resumes for multiple job roles easily. Manage your profiles and generate infinite iterations.</p>
+        <h3>Frosted A4 Templates 🎨</h3>
+        <p>Choose from 7 distinct styles (Modern, Developer, Minimal, etc.) that re-render your profile instantly and export to print-ready PDF.</p>
       </section>
     </div>
 
     <section class="cta-section glass-card">
-      <h3>Ready to elevate your career?</h3>
-      <p>Join thousands of professionals landing their dream jobs.</p>
-      <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">Create Your Free Account</a>
+      <h3>Ready to beat the recruiters' filters?</h3>
+      <p>Build an impactful, professional profile optimized for your career path with ResuMate.</p>
+      {% if session.get('user') %}
+        <a href="{{ url_for('dashboard') }}" class="btn-primary">Build Your Resume</a>
+      {% else %}
+        <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">Create Your Free Account</a>
+      {% endif %}
     </section>
   </main>
 

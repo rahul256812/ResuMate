@@ -12,7 +12,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body>
-  
+  <a href="{{ url_for('home') }}" class="btn-back-home">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Home
+  </a>
   <!-- Add decorative background blobs like the main page -->
   <div class="bg-gradient"></div>
   <div class="glass-blobs">

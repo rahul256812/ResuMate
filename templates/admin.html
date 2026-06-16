@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — ResuMate</title>
+  <meta name="description" content="ResuMate administrator panel for monitoring statistics and managing registered users and resumes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-rgb: 139, 92, 246;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --dim: #94a3b8;
+      --blob1: #c4b5fd;
+      --blob2: #93c5fd;
+      --grad-center: #f5f3ff;
+      --title-grad: linear-gradient(135deg, #0f172a, #8b5cf6);
+      
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #10b981;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: radial-gradient(ellipse at 10% 0%, var(--grad-center) 0%, var(--bg) 55%, var(--bg) 100%);
+    }
+
+    .glass-blobs {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.3;
+    }
+
+    .blob-1 {
+      background: var(--blob1);
+      width: 500px;
+      height: 500px;
+      top: -150px;
+      left: -100px;
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+
+    .blob-2 {
+      background: var(--blob2);
+      width: 450px;
+      height: 450px;
+      bottom: -80px;
+      right: -80px;
+      animation: drift 17s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 60px) scale(1.1); }
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hdr {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+    }
+
+    .logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: 1px;
+      background: var(--title-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.5);
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      color: var(--text);
+      border-color: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .btn-nav-logout {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.5);
+      transition: all 0.2s;
+    }
+
+    .btn-nav-logout:hover {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .user-profile-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    /* Main Content */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 32px 60px 32px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      background: var(--title-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-sub {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* Alert Message */
+    .alert {
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .alert-success {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid #c2e7c9;
+    }
+
+    .alert-error {
+      background: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #fad2cf;
+    }
+
+    /* Dashboard Layout Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Stats Card */
+    .stats-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .stats-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stats-icon-purple {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+    }
+
+    .stats-icon-blue {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
+    .stats-info h3 {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .stats-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    /* Template Usage Card */
+    .template-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+      grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+      .template-card {
+        grid-column: span 1;
+      }
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .template-bar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .template-stat-item {
+      background: rgba(0, 0, 0, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .tpl-stat-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .tpl-name {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .tpl-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(139, 92, 246, 0.08);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .tpl-progress-bg {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tpl-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #a855f7);
+      border-radius: 3px;
+      transition: width 0.8s ease-out;
+    }
+
+    /* List Sections */
+    .panel-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+      margin-bottom: 32px;
+    }
+
+    /* Table styling */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      padding: 12px 16px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(139, 92, 246, 0.01);
+    }
+
+    .font-mono-desc {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.03);
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .badge-template {
+      background: rgba(139, 92, 246, 0.08);
+      color: var(--primary);
+      border: 1px solid rgba(139, 92, 246, 0.15);
+    }
+
+    .badge-count {
+      background: rgba(59, 130, 246, 0.08);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      font-weight: 700;
+    }
+
+    .admin-badge {
+      background: #fef3c7;
+      color: #d97706;
+      border: 1px solid #fde68a;
+      font-size: 10px;
+      margin-left: 6px;
+    }
+
+    /* Action buttons */
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.06);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    .empty-rows {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <header>
+    <div class="hdr">
+      <a href="{{ url_for('home') }}" class="logo">RESUMATE.</a>
+      <div class="hdr-right">
+        <a href="{{ url_for('my_resumes') }}" class="btn-nav">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          My Resumes
+        </a>
+        <a href="{{ url_for('profile') }}" class="user-profile-link" title="{{ session['user']['username'] }}">
+          <div class="user-avatar">{{ session['user']['username'][0].upper() }}</div>
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn-nav-logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">Admin Dashboard</h1>
+      <p class="page-sub">Monitor user growth, resumes created, and layout template metrics.</p>
+    </div>
+
+    {% if msg %}
+    <div class="alert alert-{{ msg.type }}">
+      {% if msg.type == 'success' %}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      {% else %}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {% endif %}
+      <span>{{ msg.text }}</span>
+    </div>
+    {% endif %}
+
+    <div class="dashboard-grid">
+      <!-- Users Card -->
+      <div class="stats-card">
+        <div class="stats-icon stats-icon-purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="stats-info">
+          <h3>Total Users</h3>
+          <div class="stats-number">{{ total_users }}</div>
+        </div>
+      </div>
+
+      <!-- Resumes Card -->
+      <div class="stats-card">
+        <div class="stats-icon stats-icon-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="stats-info">
+          <h3>Total Resumes</h3>
+          <div class="stats-number">{{ total_resumes }}</div>
+        </div>
+      </div>
+
+      <!-- Template Usage stats -->
+      <div class="template-card">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Template Popularity
+        </h2>
+        <div class="template-bar-grid">
+          {% set max_count = 1 if total_resumes == 0 else total_resumes %}
+          {% for tpl, count in template_counts.items() %}
+            {% set percent = (count / max_count * 100)|round|int %}
+            <div class="template-stat-item">
+              <div class="tpl-stat-info">
+                <span class="tpl-name">{{ tpl }}</span>
+                <span class="tpl-count">{{ count }}</span>
+              </div>
+              <div class="tpl-progress-bg">
+                <div class="tpl-progress-bar" style="width: {{ percent }}%;"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- User Management Table -->
+    <div class="panel-card">
+      <h2 class="section-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        User Management
+      </h2>
+      <div class="table-container">
+        {% if users %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Resumes</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td><span class="font-mono-desc">{{ u._id }}</span></td>
+              <td>
+                <strong>{{ u.username }}</strong>
+                {% if u.email == 'admin@resumate.com' %}
+                  <span class="badge admin-badge">Admin</span>
+                {% endif %}
+              </td>
+              <td>{{ u.email }}</td>
+              <td><span class="badge badge-count">{{ u.resumes_count }}</span></td>
+              <td style="text-align: right;">
+                {% if u.email != 'admin@resumate.com' %}
+                <form action="{{ url_for('admin_delete_user', user_id=u._id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user? This will permanently delete their account, plus all their resumes and drafts. This action is irreversible.');">
+                  <button type="submit" class="btn-delete">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    Delete User
+                  </button>
+                </form>
+                {% else %}
+                <span style="font-size: 12px; color: var(--dim);">Protected</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-rows">No registered users found.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Resume Management Table -->
+    <div class="panel-card">
+      <h2 class="section-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Resume Directory
+      </h2>
+      <div class="table-container">
+        {% if resumes %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Resume Name</th>
+              <th>Owner Email</th>
+              <th>Template</th>
+              <th>Created At</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in resumes %}
+            <tr>
+              <td><span class="font-mono-desc">{{ r._id }}</span></td>
+              <td><strong>{{ r.resume_name or r.name or 'Untitled Resume' }}</strong></td>
+              <td>{{ r.user_email }}</td>
+              <td><span class="badge badge-template">{{ r.template }}</span></td>
+              <td class="local-date" data-utc="{{ r.created_at_iso }}">{{ r.created_at }}</td>
+              <td style="text-align: right;">
+                <form action="{{ url_for('admin_delete_resume', resume_id=r._id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this resume?');">
+                  <button type="submit" class="btn-delete">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-rows">No saved resumes found in directory.</div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Convert UTC timestamps to user's local timezone
+    document.querySelectorAll('.local-date').forEach(el => {
+      const utcStr = el.getAttribute('data-utc');
+      if (utcStr && utcStr !== 'N/A') {
+        const date = new Date(utcStr + 'Z');
+        if (!isNaN(date.getTime())) {
+          const options = { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+          el.textContent = date.toLocaleString('en-US', options);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

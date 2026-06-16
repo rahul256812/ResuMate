@@ -1,11 +1,17 @@
 :root {
-  --primary-color: #6366f1; /* Indigo 500 */
-  --primary-hover: #4f46e5;
-  --bg-dark: #0f172a; 
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --primary-color: #3b82f6; 
+  --primary-hover: #2563eb;
+  --bg-dark: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --backdrop-blur: blur(12px);
-  --panel-gradient: linear-gradient(-45deg, #4f46e5, #9333ea);
+  --panel-gradient: linear-gradient(-45deg, #3b82f6, #1d4ed8);
+  --text-color: #0f172a;
+  --input-bg: rgba(0, 0, 0, 0.03);
+  --input-border: rgba(0, 0, 0, 0.08);
+  --blob1: #93c5fd; 
+  --blob2: #c4b5fd; 
+  --grad-center: #e0f2fe;
 }
 
 * {
@@ -21,7 +27,7 @@ body {
   align-items: center;
   min-height: 100vh;
   background-color: var(--bg-dark);
-  color: #fff;
+  color: var(--text-color);
   overflow: hidden; /* Important to keep blobs hidden */
 }
 
@@ -29,7 +35,7 @@ body {
 .bg-gradient {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle at top left, #312e81 0%, var(--bg-dark) 50%, #0f172a 100%);
+  background: radial-gradient(ellipse at 10% 0%, var(--grad-center) 0%, var(--bg-dark) 45%, var(--bg-dark) 100%);
   z-index: -2;
 }
 
@@ -48,11 +54,11 @@ body {
   opacity: 0.5;
 }
 .blob-1 {
-  width: 400px; height: 400px; background: #6366f1;
+  width: 400px; height: 400px; background: var(--blob1);
   top: -50px; left: -50px; animation: float 15s ease-in-out infinite alternate;
 }
 .blob-2 {
-  width: 400px; height: 400px; background: #a855f7;
+  width: 400px; height: 400px; background: var(--blob2);
   bottom: -50px; right: -50px; animation: float 12s ease-in-out infinite alternate-reverse;
 }
 
@@ -76,12 +82,12 @@ body {
   width: 850px;
   max-width: 100%;
   min-height: 550px;
-  background: rgba(30, 41, 59, 0.4);
+  background: var(--glass-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
   overflow: hidden;
 }
 
@@ -119,14 +125,19 @@ body {
 .form-control h2 {
   font-family: 'Outfit', sans-serif;
   font-size: 32px;
-  color: #fff;
+  color: var(--text-color);
   margin-bottom: 30px;
+}
+
+.form-control span {
+  color: #64748b;
+  font-size: 14px;
 }
 
 .input-field {
   max-width: 380px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--input-bg);
   margin: 10px 0;
   height: 50px;
   border-radius: 55px;
@@ -134,19 +145,19 @@ body {
   grid-template-columns: 15% 85%;
   padding: 0 10px;
   position: relative;
-  border: 1px solid transparent;
+  border: 1px solid var(--input-border);
   transition: 0.3s;
 }
 
 .input-field:focus-within {
   border-color: var(--primary-color);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .input-field i {
   text-align: center;
   line-height: 50px;
-  color: #acacac;
+  color: #94a3b8;
   transition: 0.3s;
   font-size: 1.1rem;
 }
@@ -158,12 +169,12 @@ body {
   line-height: 1;
   font-weight: 400;
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--text-color);
   font-family: 'Inter', sans-serif;
 }
 
 .input-field input::placeholder {
-  color: #aaa;
+  color: #94a3b8;
   font-weight: 300;
 }
 
@@ -185,7 +196,7 @@ body {
 
 .btn:hover {
   background-color: var(--primary-hover);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
 .social-text {
@@ -207,8 +218,8 @@ body {
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-color);
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: 50%;
   transition: 0.3s;
 }
@@ -216,6 +227,7 @@ body {
 .social-icon:hover {
   background: var(--primary-color);
   border-color: var(--primary-color);
+  color: #fff;
 }
 
 /* Visibility Control for Forms */
@@ -262,6 +274,7 @@ body {
 .intro-control h3 {
   font-family: 'Outfit', sans-serif;
   font-size: 28px;
+  color: #fff;
   margin-bottom: 10px;
 }
 
@@ -352,4 +365,30 @@ body {
     transform: translateY(100%);
     border-radius: 50% 50% 0 0;
   }
+}
+
+.btn-back-home {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--backdrop-blur);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.btn-back-home:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
 }
