@@ -8,12 +8,14 @@ from werkzeug.utils import secure_filename
 from bson.objectid import ObjectId
 from datetime import datetime
 
+import certifi
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')  # Replace with a secure secret in production
 
 # MongoDB setup
 mongo_uri = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/')
-client = MongoClient(mongo_uri)
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
 db = client['resume_builder']
 users_col = db['users']
 
