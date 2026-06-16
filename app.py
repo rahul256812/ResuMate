@@ -372,66 +372,67 @@ def ats_score():
         return jsonify({'status': 'error'}), 401
 
     data = request.get_json()
+    job_description = data.get('job_description', '')
+    if not job_description.strip():
+        return jsonify({'status': 'error', 'message': 'Job description is required.'}), 400
+
     resume_text = ' '.join([
-        data.get('name', ''),
-        data.get('summary', ''),
-        data.get('skills', ''),
-        data.get('experience', ''),
-        data.get('education', ''),
-    ]).lower()
+        f"Name: {data.get('name', '')}",
+        f"Summary: {data.get('summary', '')}",
+        f"Skills: {data.get('skills', '')}",
+        f"Work Experience: {data.get('experience', '')}",
+        f"Education: {data.get('education', '')}"
+    ])
 
-    # ATS keyword categories
-    ats_keywords = {
-        'Action Verbs': ['developed', 'managed', 'led', 'created', 'implemented', 'designed',
-                         'built', 'improved', 'achieved', 'delivered', 'launched', 'collaborated',
-                         'optimized', 'analyzed', 'coordinated', 'spearheaded'],
-        'Technical Skills': ['python', 'javascript', 'java', 'sql', 'html', 'css', 'react',
-                              'node', 'aws', 'docker', 'kubernetes', 'git', 'linux', 'api',
-                              'machine learning', 'data analysis', 'agile', 'scrum'],
-        'Soft Skills': ['leadership', 'communication', 'teamwork', 'problem solving', 'analytical',
-                        'collaborative', 'initiative', 'adaptable', 'detail-oriented', 'results-driven'],
-    }
+    try:
+        from google import genai
+        from google.genai import types
+        api_key = os.environ.get('GEMINI_API_KEY', '')
+        if not api_key:
+            return jsonify({'status': 'error', 'message': 'GEMINI_API_KEY not set on server.'}), 500
 
-    found = {}
-    missing = {}
-    total_keywords = 0
-    total_found = 0
+        client = genai.Client(api_key=api_key)
 
-    for category, keywords in ats_keywords.items():
-        found[category] = []
-        missing[category] = []
-        for kw in keywords:
-            total_keywords += 1
-            if kw in resume_text:
-                found[category].append(kw)
-                total_found += 1
-            else:
-                missing[category].append(kw)
+        prompt = f"""
+        Analyze the following resume details against the target job description.
+        
+        Resume details:
+        {resume_text}
+        
+        Target Job Description:
+        {job_description}
+        
+        Provide a professional applicant tracking system (ATS) alignment analysis.
+        You must return a JSON object with the following keys:
+        - "score": integer from 0 to 100 representing how well the resume matches the job description.
+        - "grade": a string rating ("Excellent" for score >= 75, "Good" for 50-74, "Fair" for 25-49, "Needs Work" for < 25).
+        - "color": a hex code color for the rating ("#10b981" for Excellent, "#f59e0b" for Good, "#f97316" for Fair, "#ef4444" for Needs Work).
+        - "found": a list of matched keywords, skills, or experiences found in the resume that align with the job description.
+        - "missing": a list of important keywords, skills, or requirements mentioned in the job description but missing from the resume.
+        - "feedback": 1-2 sentences of actionable advice to improve the match.
+        """
 
-    score = round((total_found / total_keywords) * 100)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json"
+            )
+        )
+        
+        result = json.loads(response.text.strip())
+        return jsonify({
+            'status': 'ok',
+            'score': result.get('score', 0),
+            'grade': result.get('grade', 'Needs Work'),
+            'color': result.get('color', '#ef4444'),
+            'found': result.get('found', []),
+            'missing': result.get('missing', []),
+            'feedback': result.get('feedback', '')
+        })
 
-    # Grade
-    if score >= 75:
-        grade = 'Excellent'
-        color = '#10b981'
-    elif score >= 50:
-        grade = 'Good'
-        color = '#f59e0b'
-    elif score >= 25:
-        grade = 'Fair'
-        color = '#f97316'
-    else:
-        grade = 'Needs Work'
-        color = '#ef4444'
-
-    return jsonify({
-        'status': 'ok',
-        'score': score,
-        'grade': grade,
-        'color': color,
-        'found': found,
-        'missing': missing
-    })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # ─── Save Resume ──────────────────────────────────────────────────────────────

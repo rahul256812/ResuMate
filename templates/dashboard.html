@@ -909,17 +909,51 @@
     }
 
     // ─── ATS Score ────────────────────────────────────────────────────────────
-    async function openATS() {
+    function openATS() {
       document.getElementById('atsModal').classList.add('open');
       document.getElementById('atsContent').innerHTML = `
-        <div class="ats-loading"><div class="spinner"></div><p>Analysing your resume…</p></div>`;
+        <div class="ats-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 4px; line-height: 1.4;">
+            Paste the target Job Description below. We'll use Gemini to analyze how well your resume matches the job requirements.
+          </p>
+          <textarea id="ats-job-desc" placeholder="Paste the Job Description (responsibilities, skills, qualifications) here..." rows="8" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--glass-border); background: var(--input-bg); color: var(--text); outline: none; font-size: 13px; resize: vertical; font-family:'Inter',sans-serif; line-height: 1.5;"></textarea>
+          <button type="button" class="btn-primary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; font-weight:600; border:none; cursor:pointer;" onclick="runATSAnalysis()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analyze Resume Match
+          </button>
+        </div>
+      `;
+    }
+
+    async function runATSAnalysis() {
+      const jd = document.getElementById('ats-job-desc')?.value || '';
+      if (!jd.trim()) {
+        showToast('Please paste a Job Description first.', 'error');
+        return;
+      }
+
+      document.getElementById('atsContent').innerHTML = `
+        <div class="ats-loading" style="padding: 30px 0; display:flex; flex-direction:column; align-items:center; gap:14px;">
+          <div class="spinner"></div>
+          <p style="font-weight: 500;">Analyzing your resume match with Gemini...</p>
+        </div>
+      `;
+
+      // Gather all experience descriptions
+      const expElements = Array.from(document.querySelectorAll('[name^="experience["][name$="][description]"]'));
+      const expText = expElements.map(el => el.value).filter(val => val.trim() !== '').join('\n');
+
+      // Gather all education degrees
+      const eduElements = Array.from(document.querySelectorAll('[name^="education["][name$="][degree]"]'));
+      const eduText = eduElements.map(el => el.value).filter(val => val.trim() !== '').join('\n');
 
       const payload = {
+        job_description: jd,
         name:       document.getElementById('field-name')?.value || '',
         summary:    document.getElementById('field-summary')?.value || '',
         skills:     document.querySelector('[name="skills"]')?.value || '',
-        experience: document.querySelector('[name="experience[0][description]"]')?.value || '',
-        education:  document.querySelector('[name="education[0][degree]"]')?.value || '',
+        experience: expText,
+        education:  eduText
       };
 
       try {
@@ -929,22 +963,35 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.status === 'ok') renderATSResult(data);
-        else document.getElementById('atsContent').innerHTML = `<p style="color:#f87171">Error: ${data.message}</p>`;
+        if (data.status === 'ok') {
+          renderATSResult(data);
+        } else {
+          document.getElementById('atsContent').innerHTML = `
+            <p style="color:#f87171; margin-bottom: 15px;">Error: ${data.message}</p>
+            <button class="btn-primary" onclick="openATS()" style="width:100%">Try Again</button>
+          `;
+        }
       } catch (e) {
-        document.getElementById('atsContent').innerHTML = `<p style="color:#f87171">Network error</p>`;
+        document.getElementById('atsContent').innerHTML = `
+          <p style="color:#f87171; margin-bottom: 15px;">Network error occurred</p>
+          <button class="btn-primary" onclick="openATS()" style="width:100%">Try Again</button>
+        `;
       }
     }
 
     function renderATSResult(d) {
       let foundHtml = '';
       let missingHtml = '';
-      for (const [cat, kws] of Object.entries(d.found)) {
-        if (kws.length) foundHtml += `<div class="ats-category"><span class="ats-cat-label">${cat}</span><div class="ats-tags found">${kws.map(k=>`<span>${k}</span>`).join('')}</div></div>`;
+
+      if (Array.isArray(d.found) && d.found.length) {
+        foundHtml = `<div class="ats-tags found">${d.found.map(k=>`<span>${k}</span>`).join('')}</div>`;
       }
-      for (const [cat, kws] of Object.entries(d.missing)) {
-        if (kws.length) missingHtml += `<div class="ats-category"><span class="ats-cat-label">${cat}</span><div class="ats-tags missing">${kws.map(k=>`<span>${k}</span>`).join('')}</div></div>`;
+      
+      if (Array.isArray(d.missing) && d.missing.length) {
+        missingHtml = `<div class="ats-tags missing">${d.missing.map(k=>`<span>${k}</span>`).join('')}</div>`;
       }
+
+      let feedbackHtml = d.feedback ? `<p class="ats-feedback" style="margin-top: 15px; font-size: 13px; color: var(--muted); line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid var(--border);">${d.feedback}</p>` : '';
 
       document.getElementById('atsContent').innerHTML = `
         <div class="ats-score-ring">
@@ -960,8 +1007,10 @@
           </div>
         </div>
         <div class="ats-grade" style="color:${d.color}">${d.grade}</div>
-        ${foundHtml ? `<h4 class="ats-section-title">✓ Keywords Found</h4>${foundHtml}` : ''}
-        ${missingHtml ? `<h4 class="ats-section-title">✗ Missing Keywords</h4>${missingHtml}` : ''}
+        ${feedbackHtml}
+        ${foundHtml ? `<h4 class="ats-section-title" style="margin-top:20px;">✓ Matched Keywords / Skills</h4>${foundHtml}` : ''}
+        ${missingHtml ? `<h4 class="ats-section-title" style="margin-top:20px;">✗ Missing Requirements / Skills</h4>${missingHtml}` : ''}
+        <button class="btn-primary" onclick="openATS()" style="width:100%; margin-top:20px; border:none; padding:10px; cursor:pointer;">Check Another Job Description</button>
       `;
     }
 

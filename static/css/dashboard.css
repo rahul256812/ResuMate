@@ -213,7 +213,7 @@ textarea { resize:vertical;min-height:88px; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .ats-score-ring { position:relative;display:flex;justify-content:center;margin-bottom:14px; }
 .ats-score-inner { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
-.ats-number { display:block;font-family:'Outfit',sans-serif;font-size:30px;font-weight:800;color:#fff; }
+.ats-number { display:block;font-family:'Outfit',sans-serif;font-size:30px;font-weight:800;color:var(--text); }
 .ats-label { font-size:12px;color:var(--dim); }
 .ats-grade { text-align:center;font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px; }
 .ats-section-title { font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:16px 0 8px; }
